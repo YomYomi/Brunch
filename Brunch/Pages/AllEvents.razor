@@ -1,0 +1,74 @@
+﻿@using Brunch.Dto
+@using BusinessLibrary
+@using BusinessLibrary.Interfaces
+@using BusinessLibrary.Models
+
+@inject IEventData _db
+
+
+<h2> כל האירועים</h2>
+
+@if (Events is null)
+{
+    <p>
+       טוען נתונים...
+    </p>
+
+}
+else
+{
+
+
+
+
+    <table class="table table-striped">    
+    
+    <thead>
+        <tr>
+            <td>
+                אירוע
+            </td>
+            <td>
+              תיאור
+            </td>
+            <td>
+               תאריך
+            </td>
+            <td>
+                שעה
+            </td>
+            <td>
+                בחר מנה לאירוע
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+    
+            @foreach(var ev in Events)
+            {
+                <tr>
+                    <td>@ev.EventTitle</td>
+                    <td>@ev.EventDescription</td>
+                    <td><span>@ev.EventDateTime.ToString("dd-MM-yyyy") </span></td>
+                    <td>@ev.EventDateTime.ToString("HH:mm")</td>
+                    <td><button class="btn btn-link" > </button></td>>
+                </tr>
+
+            }
+    </tbody>
+    </table>
+
+}
+
+@code {
+
+    [Parameter]
+    public List<EventModel>? Events { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        Events = await _db.GetAllEvents();
+       
+    }
+
+}

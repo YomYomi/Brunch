@@ -1,0 +1,133 @@
+﻿@page "/Members"
+
+@using Brunch.Dto
+@using BusinessLibrary.Models
+@using BusinessLibrary;
+
+@inject IMemberData _db
+
+
+
+
+<EditForm Model="@newMember" OnValidSubmit="@AddNewMember">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+
+<div class="card">
+  <h5 class="card-header">הוספת חבר</h5>
+  <div class="card-body">
+
+       <label> שם פרטי:
+        <InputText id="firsName" @bind-Value="@newMember.FirstName" autocomplete="off"  class="form-control mb-2" ></InputText>
+    </label>
+    <label> שם משפחה:
+        <InputText id="lastName" @bind-Value="@newMember.LastName" autocomplete="off" class="form-control mb-2" ></InputText>
+    </label>
+    <label> דוא"ל:
+        <InputText id="eAddress" @bind-Value="@newMember.EmailAddress" autocomplete="off" class="form-control mb-2"  ></InputText>
+    </label>
+    <label> סלולרי:
+        <InputText id="cellularNo" @bind-Value="@newMember.CellularNo" autocomplete="off" class="form-control mb-2" ></InputText>
+    </label>
+    <label> קידומת:
+    <InputSelect id="cellPref" @bind-Value="@newMember.CellularPref" class="form-control">
+        <option value=""></option>
+        <option value="050">050</option>
+        <option value="051">051</option>
+        <option value="052">052</option>
+        <option value="053">053</option>
+        <option value="054">054</option>
+        <option value="055">055</option>
+        <option value="058">058</option>
+    </InputSelect>
+    </label>
+
+    <button type="submit" id="btnSubmit" class="btn btn-primary">Submit</button>
+
+  
+
+  </div>
+</div>
+
+
+   
+    
+
+</EditForm>
+
+@if (members is null)
+{
+    <p>
+       טוען נתונים...
+    </p>
+
+}
+else
+{
+
+<h2> כל החברים</h2>
+
+
+    <table class="table table-striped">    
+    
+    <thead>
+        <tr>
+            <td>
+                שם פרטי
+            </td>
+            <td>
+               שם משפחה
+            </td>
+            <td>
+                דוא"ל
+            </td>
+            <td>
+                סלולרי
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+    
+            @foreach(var member in members)
+            {
+                <tr>
+                    <td>@member.FirstName</td>
+                    <td>@member.LastName</td>
+                    <td>@member.EmailAddress</td>
+                    <td>@member.CellularPref-@member.CellularNo</td>
+                </tr>
+
+            }
+    </tbody>
+    </table>
+
+}
+
+
+@code 
+{
+    private List<MemberModel>? members;
+    private DisplayMemberModel newMember = new DisplayMemberModel();
+    protected override async Task OnInitializedAsync()
+    {
+        members = await _db.GetAllMembers();        
+        newMember = new DisplayMemberModel();
+    }
+
+    private async Task AddNewMember()
+    {
+        MemberModel newMemberModel = new MemberModel()
+            {
+                FirstName = newMember.FirstName,
+                LastName = newMember.LastName,
+                EmailAddress = newMember.EmailAddress,
+                CellularPref = newMember.CellularPref,
+                CellularNo = newMember.CellularNo
+            };
+
+        await _db.AddNewMember(newMemberModel);
+        members.Add(newMemberModel);
+        newMember = new DisplayMemberModel(); 
+    }
+}

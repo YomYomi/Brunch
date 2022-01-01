@@ -1,0 +1,78 @@
+﻿@page "/Events"
+
+@using Brunch.Dto
+@using BusinessLibrary.Models
+@using BusinessLibrary;
+
+@inject IEventData _db
+
+
+<EditForm Model="@newEvent" OnValidSubmit="@AddNewEvent">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    
+<div class="card">
+  <h5 class="card-header">הוספת אירוע</h5>
+  <div class="card-body">
+
+      <div>
+         <label> כותרת האירוע:
+            <InputText id="title" @bind-Value="@newEvent.EventTitle" autocomplete="off"  class="form-control" style="width:40em;" ></InputText>
+        </label>
+    </div>
+    <div>
+        <label> תיאור האירוע:
+            <InputTextArea id="descr" @bind-Value="@newEvent.EventDescription" autocomplete="off" class="form-control mb-8" style="width:40em;"   ></InputTextArea>
+        </label>
+    </div>
+    <label> תאריך:
+        
+        <InputDate @bind-Value="newEvent.EventDateTime" class="form-control mp-0"  />
+        
+    </label>
+    <label> שעה:
+       @* <InputText id="etime" @bind-Value="newEvent.EventTime.ToShortTimeString()" type="time"  autocomplete="off" class="form-control mb-2"  ></InputText>   *@ 
+           <input type="time" id="appt" name="appt" required @bind="newEvent.EventDateTime" class="form-control mb-2" step="any">
+    </label>
+  
+   
+
+    <button type="submit" id="btnSubmit" class="btn btn-primary">Submit</button>  
+
+  </div>
+</div>
+
+</EditForm>
+
+<AllEvents Events=events></AllEvents>
+
+@code 
+{
+    private string SelecteTime = "14:00";
+    private List<EventModel>? events;
+    private DisplayEvent newEvent= new DisplayEvent();
+
+    protected override void OnInitialized()
+    {        
+        newEvent = new DisplayEvent();
+    }
+
+    private async Task AddNewEvent()
+    {
+        EventModel newEventModel = new EventModel()
+            {
+                EventDescription = newEvent.EventDescription,                
+                EventDateTime = newEvent.EventDateTime,
+                EventTitle = newEvent.EventTitle
+            };
+
+        await _db.AddNewEvent(newEventModel);
+
+        events = await _db.GetAllEvents();
+        
+        newEvent= new DisplayEvent(); 
+    }
+
+    
+}

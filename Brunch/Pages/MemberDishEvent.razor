@@ -1,0 +1,89 @@
+﻿
+@page "/MemberDishEvent/{EventId:int}"
+@using BusinessLibrary
+@using BusinessLibrary.Models
+@inject IEventData _daEvent
+@inject IMemberData _daMember
+@inject IDishData _daDish
+
+<h3>MemberDishEvent</h3>
+
+@if (SelectedEvent != null)
+{
+    <div>
+        בחירת מנה למשתתף באירוע  <b> @SelectedEvent.EventTitle </b>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <td>
+                    משתתף
+                </td>
+                <td>
+                    מנה
+                </td>
+                <td>
+
+                </td>
+            </tr>
+
+        </thead>
+        @foreach (var mem in MembersForEvent)
+        {
+            <tr>
+                <td>
+                    @mem.FirstName  @mem.LastName
+
+                </td>
+                <td>
+                    <select @bind-Value="@selectedDishId" @bind-Value:event="onchange" >
+                        @foreach (var d in dishForEvent)
+                        {
+                            <option value=@d.ID> @d.DishName</option>
+                        }                                
+                    </select>
+                </td>
+                <td>
+                    <button class="btn btn-secondary" @onclick="@(()=>SaveDishForMember1(mem))" >שמור</button>
+                    <button class="btn btn-secondary">ערוך</button>
+                </td>
+            </tr>
+        }
+    </table>
+}
+
+@code {
+    [Parameter]
+    public int EventId { get; set; }
+    private int selectedDishId;
+    private List<DishModel> dishForEvent;
+    private List<MemberModel> MembersForEvent;
+    private EventModel SelectedEvent {get;set;}
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        if (MembersForEvent == null)
+        {
+            SelectedEvent = await _daEvent.GetEventById(EventId);
+        }
+        if (MembersForEvent == null)
+        {
+            MembersForEvent = await _daMember.GetMembersByEventId(EventId);
+        }
+        if (dishForEvent == null)
+        {
+            dishForEvent = await _daDish.GetDishByEventId(EventId);
+        }
+
+        await base.OnInitializedAsync();
+    }
+    private async Task SaveDishForMember1(MemberModel mem)
+    {
+
+        await _daMember.SaveDishToMember(mem.ID, selectedDishId, EventId);
+    }
+
+
+}
